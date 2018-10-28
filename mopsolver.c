@@ -5,6 +5,7 @@
 #include<getopt.h>
 #include<stdio.h>
 
+
 typedef struct {
 	char** map;
 	int columns;
@@ -14,7 +15,42 @@ typedef struct {
 	int p;
 	int d;
 	int s;
+	int solvable;
 }Maze;
+
+//-s command
+void checkSolvable(Maze *maze,int crumbs[][maze->columns],int row,int col){
+    //uses depth first search to check if the maze is solvable.
+    crumbs[row][col]=1;
+    if((row+1==maze->rows)&&(col+1==maze->columns)){
+        //printf("solvable\n");
+	maze->solvable=1;
+    }
+    if(row+1!=maze->rows){
+	if(maze->map[row+1][col]=='0'&&crumbs[row+1][col]==0){
+	    //printf("(%d,%d) down\n",row+1,col);
+	    checkSolvable(maze,crumbs,row+1,col);
+	}
+    }
+    if(col+1!=maze->columns){
+	if(maze->map[row][col+1]=='0'&&crumbs[row][col+1]==0){
+	    //printf("(%d,%d) right\n",row,col+1);
+	    checkSolvable(maze,crumbs,row,col+1);
+	}
+    }
+    if(row-1!=-1){
+	if(maze->map[row-1][col]=='0'&&crumbs[row-1][col]==0){
+	    //printf("(%d,%d) up\n",row-1,col);
+	    checkSolvable(maze,crumbs,row-1,col);
+	}
+    }
+    if(col-1!=-1){
+	if(maze->map[row][col-1]=='0'&&crumbs[row][col-1]==0){
+	    //printf("(%d,%d) left\n",row,col-1);
+	    checkSolvable(maze,crumbs,row,col-1);
+	}
+    }
+}
 
 
 int readline(Maze *maze, size_t size){
@@ -22,10 +58,6 @@ int readline(Maze *maze, size_t size){
     int count = 0;
     getline(&buf,&size,maze->i);
     if(!feof(maze->i)){
-	//if((buf[0]!=48)||(buf[0]!=49)||buf[0]!=' '){
-	  //  return 0;
-	//}
-	//printf("%d\n",maze->rows);
         maze->map = realloc(maze->map,(maze->rows+1)*8); 
         maze->map[maze->rows]=malloc(maze->columns);
         for(int i = 0;i<(signed)size;i++){
@@ -34,7 +66,13 @@ int readline(Maze *maze, size_t size){
 	        count++;
 	    }
         }
+	if(buf!=NULL){
+            free(buf);
+	}
 	return 1;
+    }
+    if(buf!=NULL){
+	free(buf);
     }
     return 0;
 }
@@ -55,15 +93,17 @@ void createMap(Maze *maze){
     maze->columns=count;
     maze->map=malloc(8);
     maze->map[0]=malloc(maze->columns);
-    //maze->map[0][0]='1';
-    //printf("1\n");
     for(int i=0;i<(signed)len; i++){
-        if((buf[i]==48)||(buf[i]==49)){
-	    maze->map[0][a]=buf[i];
-	    a++;
-	}
+	if(buf!=NULL){
+            if((buf[i]==48)||(buf[i]==49)){
+	        maze->map[0][a]=buf[i];
+	        a++;
+	    }
+        }   
     }
-    //maze->map[a]='\0';
+    if(buf!=NULL){
+	free(buf);
+    }
     maze->rows = 1;
     while(readline(maze,maze->columns)==1){
 	maze->rows++;
@@ -72,19 +112,42 @@ void createMap(Maze *maze){
 
 
 void printMap(Maze *maze){
-    //printf("%d",maze->rows);
-    for(int i=0;i<maze->rows;i++){
-	for(int j=0; j<maze->columns;j++){
-	    printf("%c ",maze->map[i][j]);
-	}
-	printf("\n");
+    fprintf(maze->o,"|");
+    for(int i=0;i<maze->columns*2+1;i++){
+        fprintf(maze->o,"-");
     }
+    fprintf(maze->o,"|\n");
+    for(int i=0;i<maze->rows;i++){
+	if(i!=0){
+	    fprintf(maze->o,"| ");
+	}
+	else{
+	    fprintf(maze->o,"  ");
+	}
+	for(int j=0; j<maze->columns;j++){
+	    if(maze->map[i][j]=='0'){
+		fprintf(maze->o,". ");
+	    }
+	    else{
+	        fprintf(maze->o,"# ");
+	    }
+	}
+	if(i!=maze->rows-1){
+	    fprintf(maze->o,"|\n");
+	}
+	else{
+	    fprintf(maze->o,"\n");
+	}
+    }
+    fprintf(maze->o,"|");
+    for(int i=0;i<maze->columns*2+1;i++){
+        fprintf(maze->o,"-");
+    }
+    fprintf(maze->o,"|\n");
 }
 
 
 int main(int argc, char** argv){
-    //printf("Before getopt:\n");
-    //for (int i = 0;
     Maze *maze = malloc(sizeof(Maze));
     int opt;
     FILE *i=stdin;
@@ -122,6 +185,24 @@ int main(int argc, char** argv){
     maze->i=i;
     maze->o=o;
     createMap(maze);
-    printMap(maze);
+    if(maze->d==1){
+        printMap(maze);
+    }
+    int crumbs[maze->rows][maze->columns]; 
+	   // malloc(maze->rows*sizeof(int*));
+    for(int i=0; i<maze->rows; i++){
+        //crumbs[i]=malloc(maze->columns);
+	for(int j=0; j<maze->columns; j++){
+	    crumbs[i][j]=0;
+	}
+    }
+    maze->solvable=0;
+    checkSolvable(maze,crumbs,0,0);
+    if(maze->solvable==1){
+	printf("solvable\n");
+    }
+    else{
+	printf("not solvable\n");
+    }
     return 1;
 }
