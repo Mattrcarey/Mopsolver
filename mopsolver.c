@@ -29,6 +29,7 @@ typedef struct {
     int d;
     int s;
     int solvable;
+    int moves;
 }Maze;
 
 Cell createCell(int row, int col){
@@ -76,11 +77,8 @@ Cell getParent(Stack *stack){
 }
 
 
-Cell dequeue(Stack *stack){
-    Cell item = stack->data[stack->size-1];
-    //stack->data[stack->size-1]=NULL;
-    stack->size--;
-    return item;
+Cell gettop(Stack *stack){
+    return stack->data[stack->size-1];
 }
 
 
@@ -109,7 +107,7 @@ void bestSolution(Maze *maze){
 	        enqueue(stack,createCell(row+1,col),createCell(row,col));
 		visited[row+1][col] = 1;
 		if((row+2==maze->rows)&&(col+1==maze->columns)){
-                    printf("solved");
+		    maze->solvable=1;
 		    break;
 		}
 	    }
@@ -119,7 +117,7 @@ void bestSolution(Maze *maze){
 	        enqueue(stack,createCell(row,col+1),createCell(row,col));
 		visited[row][col+1] = 1;
 		if((row+1==maze->rows)&&(col+2==maze->columns)){
-		    printf("solved");
+		    maze->solvable=1;
 		    break;
 		}
 	    }
@@ -138,7 +136,29 @@ void bestSolution(Maze *maze){
         }
 	i++;
     }
-    
+    if(maze->solvable){
+        while(stack->size>0){
+            row = getParent(stack).row;
+            col = getParent(stack).col;
+	    while(stack->size>0){
+	        if((gettop(stack).row==row)&&(gettop(stack).col==col)){
+                    visited[gettop(stack).row][gettop(stack).col]=3;
+		    maze->moves++;
+		    //printf("%d\n",maze->moves);
+		    break;
+	        }
+	        stack->size--;
+	    }
+        }
+    }
+    if(maze->s){
+	if(maze->solvable){
+	    printf("Solution in %d steps\n",maze->moves+1);
+	}
+	else{
+	    printf("No Solution\n");
+	}
+    }
 }
 
 //-s command
@@ -322,11 +342,5 @@ int main(int argc, char** argv){
     maze->solvable=0;
     checkSolvable(maze,crumbs,0,0);
     bestSolution(maze);
-    if(maze->solvable==1){
-	printf("solvable\n");
-    }
-    else{
-	printf("not solvable\n");
-    }
     return 1;
 }
