@@ -16,6 +16,7 @@ typedef struct {
     Cell* data;
     Cell* parents;
     int size;
+    int maxsize;
 }Stack;
 
 
@@ -32,6 +33,47 @@ typedef struct {
     int moves;
 }Maze;
 
+
+void printMap(Maze *maze){
+    fprintf(maze->o,"|");
+    for(int i=0;i<maze->columns*2+1;i++){
+        fprintf(maze->o,"-");
+    }
+    fprintf(maze->o,"|\n");
+    for(int i=0;i<maze->rows;i++){
+	if(i!=0){
+	    fprintf(maze->o,"| ");
+	}
+	else{
+	    fprintf(maze->o,"  ");
+	}
+	for(int j=0; j<maze->columns;j++){
+	    if(maze->map[i][j]=='0'){
+		fprintf(maze->o,". ");
+	    }
+	    else if(maze->map[i][j]=='1'){
+	        fprintf(maze->o,"# ");
+	    }
+	    else{
+		fprintf(maze->o,"+ ");
+	    }
+	}
+	if(i!=maze->rows-1){
+	    fprintf(maze->o,"|\n");
+	}
+	else{
+	    fprintf(maze->o,"\n");
+	}
+    }
+    fprintf(maze->o,"|");
+    for(int i=0;i<maze->columns*2+1;i++){
+        fprintf(maze->o,"-");
+    }
+    fprintf(maze->o,"|\n");
+}
+
+
+
 Cell createCell(int row, int col){
     Cell cell;// = malloc(sizeof(Cell));
     cell.row=row;
@@ -47,6 +89,13 @@ Stack* createStack(){
 }
 
 
+void freeStack(Stack* stack){
+    free(stack->data);
+    free(stack->parents);
+    free(stack);
+}
+
+
 int isEmpty(Stack *stack){
     if(stack->size==0){
 	return 1;
@@ -58,6 +107,7 @@ int isEmpty(Stack *stack){
 void enqueue(Stack *stack, Cell item, Cell parent){
     if(isEmpty(stack)){
 	stack->size++;
+	stack->maxsize++;
 	stack->data = malloc(sizeof(Cell));
 	stack->parents = malloc(sizeof(Cell));
 	stack->data[0]=item;
@@ -142,7 +192,7 @@ void bestSolution(Maze *maze){
             col = getParent(stack).col;
 	    while(stack->size>0){
 	        if((gettop(stack).row==row)&&(gettop(stack).col==col)){
-                    visited[gettop(stack).row][gettop(stack).col]=3;
+                    maze->map[gettop(stack).row][gettop(stack).col]='3';
 		    maze->moves++;
 		    //printf("%d\n",maze->moves);
 		    break;
@@ -150,6 +200,7 @@ void bestSolution(Maze *maze){
 	        stack->size--;
 	    }
         }
+	maze->map[maze->rows-1][maze->columns-1]='3';
     }
     if(maze->s){
 	if(maze->solvable){
@@ -159,6 +210,10 @@ void bestSolution(Maze *maze){
 	    printf("No Solution\n");
 	}
     }
+    if(maze->p){
+        printMap(maze);
+    }
+    freeStack(stack);
 }
 
 //-s command
@@ -254,39 +309,15 @@ void createMap(Maze *maze){
 }
 
 
-void printMap(Maze *maze){
-    fprintf(maze->o,"|");
-    for(int i=0;i<maze->columns*2+1;i++){
-        fprintf(maze->o,"-");
+void freeMaze(Maze* maze){
+    for(int i = 0;i<maze->rows;i++){
+	printf("1");
+	free(maze->map[i]);
     }
-    fprintf(maze->o,"|\n");
-    for(int i=0;i<maze->rows;i++){
-	if(i!=0){
-	    fprintf(maze->o,"| ");
-	}
-	else{
-	    fprintf(maze->o,"  ");
-	}
-	for(int j=0; j<maze->columns;j++){
-	    if(maze->map[i][j]=='0'){
-		fprintf(maze->o,". ");
-	    }
-	    else{
-	        fprintf(maze->o,"# ");
-	    }
-	}
-	if(i!=maze->rows-1){
-	    fprintf(maze->o,"|\n");
-	}
-	else{
-	    fprintf(maze->o,"\n");
-	}
-    }
-    fprintf(maze->o,"|");
-    for(int i=0;i<maze->columns*2+1;i++){
-        fprintf(maze->o,"-");
-    }
-    fprintf(maze->o,"|\n");
+    //maze->map = malloc(sizeof(maze->map));
+    //free(*maze->map);
+    free(maze->map);
+    free(maze);
 }
 
 
@@ -340,7 +371,11 @@ int main(int argc, char** argv){
 	}
     }
     maze->solvable=0;
-    checkSolvable(maze,crumbs,0,0);
+    //checkSolvable(maze,crumbs,0,0);
     bestSolution(maze);
-    return 1;
+    fclose(maze->i);
+    fclose(maze->o);
+    freeMaze(maze);
+    
+    return 0;
 }
