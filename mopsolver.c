@@ -7,16 +7,71 @@
 
 
 typedef struct {
-	char** map;
-	int columns;
-	int rows;
-	FILE * i;
-	FILE * o;
-	int p;
-	int d;
-	int s;
-	int solvable;
+    int row;
+    int col;
+}Cell;
+
+
+typedef struct {
+    Cell* data;
+    int size;
+}Stack;
+
+
+typedef struct {
+    char** map;
+    int columns;
+    int rows;
+    FILE * i;
+    FILE * o;
+    int p;
+    int d;
+    int s;
+    int solvable;
 }Maze;
+
+Cell createCell(int row, int col){
+    Cell cell;// = malloc(sizeof(Cell));
+    cell.row=row;
+    cell.col=col;
+    return cell;
+}
+
+
+Stack* createStack(){
+    Stack *stack = malloc(sizeof(Stack));
+    stack->size = 0;
+    return stack;
+}
+
+
+int isEmpty(Stack *stack){
+    if(stack->size==0){
+	return 1;
+    }
+    return 0;
+}
+
+
+void enqueue(Stack *stack, Cell item){
+    if(isEmpty(stack)){
+	stack->size++;
+	stack->data = malloc(sizeof(Cell));
+	stack->data[0]=item;
+	return;
+    }
+    stack->size++;
+    stack->data = realloc(stack->data,stack->size*sizeof(Cell));
+    stack->data[stack->size-1]=item;
+}
+
+
+Cell dequeue(Stack *stack){
+    Cell item = stack->data[stack->size-1];
+    //stack->data[stack->size-1]=NULL;
+    stack->size--;
+    return item;
+}
 
 //-s command
 void checkSolvable(Maze *maze,int crumbs[][maze->columns],int row,int col){
