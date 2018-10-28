@@ -73,6 +73,49 @@ Cell dequeue(Stack *stack){
     return item;
 }
 
+
+void bestSolution(Maze *maze){
+    int visited[maze->rows][maze->columns];
+    for(int i=0; i<maze->rows; i++){
+	for(int j=0; j<maze->columns; j++){
+	    visited[i][j]=0;
+	}
+    }
+    visited[0][0] = 1;
+    Stack *stack = createStack();
+    enqueue(stack,createCell(0,0));
+    int i;
+    while(i!=stack->size){
+	int row = stack->data[i].row;
+	int col = stack->data[i].col;
+	if((row+1==maze->rows)&&(col+1==maze->columns)){
+        //printf("solvable\n");
+	break;
+        }
+        if(row+1!=maze->rows){
+	    if(maze->map[row+1][col]=='0'&&visited[row+1][col]==0){
+	        enqueue(stack,createCell(row+1,col));
+	    }
+        }
+        if(col+1!=maze->columns){
+	    if(maze->map[row][col+1]=='0'&&visited[row][col+1]==0){
+	        enqueue(stack,createCell(row,col+1));
+	    }
+        }
+        if(row-1!=-1){
+	    if(maze->map[row-1][col]=='0'&&visited[row-1][col]==0){
+	        enqueue(stack,createCell(row-1,col));
+	    }
+        }
+        if(col-1!=-1){
+	    if(maze->map[row][col-1]=='0'&&visited[row][col-1]==0){
+	        enqueue(stack,createCell(row,col-1));
+	    }
+        }
+	i++;
+    }
+}
+
 //-s command
 void checkSolvable(Maze *maze,int crumbs[][maze->columns],int row,int col){
     //uses depth first search to check if the maze is solvable.
