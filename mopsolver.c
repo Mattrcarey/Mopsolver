@@ -142,7 +142,7 @@ void bestSolution(Maze *maze){
     visited[0][0] = 1;
     Stack *stack = createStack();
     enqueue(stack,createCell(0,0),createCell(-1,-1));
-    int i;
+    int i=0;
     int row;
     int col;
     while(i!=stack->size){
@@ -152,7 +152,7 @@ void bestSolution(Maze *maze){
 	//if((row+1==maze->rows)&&(col+1==maze->columns)){
         //printf("solvable\n");
 	//break;
-        if(row+1!=maze->rows){
+        if(row+1<maze->rows){
 	    if(maze->map[row+1][col]=='0'&&visited[row+1][col]==0){
 	        enqueue(stack,createCell(row+1,col),createCell(row,col));
 		visited[row+1][col] = 1;
@@ -162,7 +162,7 @@ void bestSolution(Maze *maze){
 		}
 	    }
         }
-        if(col+1!=maze->columns){
+        if(col+1<maze->columns){
 	    if(maze->map[row][col+1]=='0'&&visited[row][col+1]==0){
 	        enqueue(stack,createCell(row,col+1),createCell(row,col));
 		visited[row][col+1] = 1;
@@ -172,13 +172,13 @@ void bestSolution(Maze *maze){
 		}
 	    }
         }
-        if(row-1!=-1){
+        if(row-1>-1){
 	    if(maze->map[row-1][col]=='0'&&visited[row-1][col]==0){
 	        enqueue(stack,createCell(row-1,col),createCell(row,col));
 		visited[row-1][col] = 1;
 	    }
         }
-        if(col-1!=-1){
+        if(col-1>-1){
 	    if(maze->map[row][col-1]=='0'&&visited[row][col-1]==0){
 	        enqueue(stack,createCell(row,col-1),createCell(row,col));
 		visited[row][col-1] = 1;
@@ -226,10 +226,10 @@ void checkSolvable(Maze *maze,int crumbs[][maze->columns],int row,int col){
     }
     if(row+1!=maze->rows){
 	if(maze->map[row+1][col]=='0'&&crumbs[row+1][col]==0){
-	    //printf("(%d,%d) down\n",row+1,col);
+	   //printf("(%d,%d) down\n",row+1,col);
 	    checkSolvable(maze,crumbs,row+1,col);
 	}
-    }
+   }
     if(col+1!=maze->columns){
 	if(maze->map[row][col+1]=='0'&&crumbs[row][col+1]==0){
 	    //printf("(%d,%d) right\n",row,col+1);
@@ -329,11 +329,9 @@ int main(int argc, char** argv){
     while((opt=getopt(argc, argv, "hdspi:o:"))!=-1){
         switch(opt){
 	    case 'i':
-		printf("Input file: %s\n",optarg);
 		i=fopen(optarg,"r");
 		break;
 	    case 'o':
-		printf("Output file: %s\n",optarg);
 		o=fopen(optarg,"w");
 		break;
 	    case 'h':
@@ -341,15 +339,12 @@ int main(int argc, char** argv){
 		exit(0);
 		break;
 	    case 'd':
-		printf("Pretty print the maze\n");
 		maze->d=1;
 		break;
 	    case 's':
-		printf("Print shortest solution steps\n");
 		maze->s=1;
 		break;
 	    case 'p':
-		printf("print the optimal path\n");
 		maze->p=1;
 		break;
 	    default:
@@ -359,23 +354,28 @@ int main(int argc, char** argv){
     maze->i=i;
     maze->o=o;
     createMap(maze);
+    //printf("1\n");
     if(maze->d==1){
         printMap(maze);
     }
-    int crumbs[maze->rows][maze->columns]; 
+    //int test;
+    //printf("2\n");
+    //int crumbs[maze->rows][maze->columns]; 
 	   // malloc(maze->rows*sizeof(int*));
-    for(int i=0; i<maze->rows; i++){
+    //for(int i=0; i<maze->rows; i++){
         //crumbs[i]=malloc(maze->columns);
-	for(int j=0; j<maze->columns; j++){
-	    crumbs[i][j]=0;
-	}
-    }
+	//for(int j=0; j<maze->columns; j++){
+	    //crumbs[i][j]=0;
+	//}
+    //}
+    //printf("3\n");
     maze->solvable=0;
     //checkSolvable(maze,crumbs,0,0);
+    //printf("4\n");
     bestSolution(maze);
+    //printf("5\n");
     fclose(maze->i);
     fclose(maze->o);
     freeMaze(maze);
-    
     return 0;
 }

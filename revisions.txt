@@ -1,0 +1,80 @@
+commit cf291e6a3a8fce6677a18d6d516762e870d18670
+Author: Matthew Reese Carey <mrc1613@cs.rit.edu>
+Date:   Sun Oct 28 17:22:12 2018 -0400
+
+    My program works, I think that the output seems right and added a
+    freeStack and freeMaze function and also closed the files. The only
+    error I had freeing was in freeMaze when iterating through the rows of
+    the 2d array I used maze->collumns instead of maze->rows in the for
+    loop. I still do have some strange memory errors but no memory leaks and
+    all momory is freed. I will add comments and then try to fix the
+    memory warnings.
+
+commit 58dafced0cf4b64787242c274ada72f4f0856ac3
+Author: Matthew Reese Carey <mrc1613@cs.rit.edu>
+Date:   Sun Oct 28 16:00:53 2018 -0400
+
+    I finished the code to interperet the stack, it can not correctly print
+    the number of steps it takes to finish the maze. Now im working on the
+    pretty print with the fastest path.
+
+commit fa0fc467c7e4dc1a0d3b78012c3a8909cb3976b6
+Author: Matthew Reese Carey <mrc1613@cs.rit.edu>
+Date:   Sun Oct 28 14:42:35 2018 -0400
+
+    I tested my function to create the stack that will help me find the
+    fastest route, it works. I had an error where I wasn't updating my
+    visited 2d array so it created an infinite loop. It was visiting the
+    same location multiple times.
+    I fixed it now I believe it creates the stack correctly, now I need to
+    interperet the stack to find the shortest path and make sure the stack
+    is made correctly.
+
+commit e5f6e0e768c81b77ce4c123fc5405951a010135c
+Author: Matthew Reese Carey <mrc1613@cs.rit.edu>
+Date:   Sun Oct 28 13:42:45 2018 -0400
+
+    I created a function that I think will create the stack I need to find
+    the fastest route with Breadth first search. I havn't tested it yet.
+
+commit fce4c3b9281183b4f10ff84dcba69068cb1276a1
+Author: Matthew Reese Carey <mrc1613@cs.rit.edu>
+Date:   Sun Oct 28 13:15:52 2018 -0400
+
+    I decided to use breadth first search to find the fastest route so I've
+    really quickly just made a Cell and Stack structure, the cell is an x
+    and y coordinate and the stack is a stack. I also made helper functions
+    to help use the stack.
+
+commit fe00a2a0a4078e3ef75dfa105c38378fe9e81caa
+Author: Matthew Reese Carey <mrc1613@cs.rit.edu>
+Date:   Sun Oct 28 11:09:05 2018 -0400
+
+    Since the last time I commited I have changed printMap to printf the the
+    output file in the Pretty print format, I have also created a check
+    solvable function that uses dfs to find if a maze is solvable or not. I
+    had no errors with this. The next step for me is to find the fastest
+    route. I'm planning on using a* for this.
+
+commit bd19b5b3de816a44c20822d9ac607e21e8f8fd20
+Author: Matthew Reese Carey <mrc1613@cs.rit.edu>
+Date:   Sat Oct 27 22:12:07 2018 -0400
+
+    I didn't want to commit untill I knew it worked, So what I've done so
+    far is created a main to initialize the Maze struct, and check all the
+    commands using getotp, I created a struct for the Maze that contains
+    input and output files, ints that act as bools for the commands, ints
+    for rows and columns and the map.
+    I created a createMap function that
+    reads the first line of the input file and uses that to initialize the
+    number of columns, It then initialises rows to 1 and calls another
+    function called readLine over and over until there are no more lines.
+    ReadLine reads one line of input, reallocs the Map to account for
+    another row and mallocs the next row of the Map. It fills then fills the
+    row.
+    I also created a printMap function that justs prints every element in
+    the 2d array.
+    
+    The only bug I had a hard time figuring out was how exactly to malloc
+    and realloc the 2d array. It took a while and alot of testing but I
+    think it works now.
