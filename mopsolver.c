@@ -14,6 +14,7 @@ typedef struct {
 
 typedef struct {
     Cell* data;
+    Cell* parents;
     int size;
 }Stack;
 
@@ -53,16 +54,25 @@ int isEmpty(Stack *stack){
 }
 
 
-void enqueue(Stack *stack, Cell item){
+void enqueue(Stack *stack, Cell item, Cell parent){
     if(isEmpty(stack)){
 	stack->size++;
 	stack->data = malloc(sizeof(Cell));
+	stack->parents = malloc(sizeof(Cell));
 	stack->data[0]=item;
+	stack->parents[0] = parent;
 	return;
     }
     stack->size++;
     stack->data = realloc(stack->data,stack->size*sizeof(Cell));
+    stack->parents = realloc(stack->parents,stack->size*sizeof(Cell));
     stack->data[stack->size-1]=item;
+    stack->parents[stack->size-1]=parent;
+}
+
+
+Cell getParent(Stack *stack){
+    return stack->parents[stack->size-1];
 }
 
 
@@ -83,37 +93,52 @@ void bestSolution(Maze *maze){
     }
     visited[0][0] = 1;
     Stack *stack = createStack();
-    enqueue(stack,createCell(0,0));
+    enqueue(stack,createCell(0,0),createCell(-1,-1));
     int i;
+    int row;
+    int col;
     while(i!=stack->size){
-	int row = stack->data[i].row;
-	int col = stack->data[i].col;
-	if((row+1==maze->rows)&&(col+1==maze->columns)){
+	//printf("%d\n",stack->size);
+	row = stack->data[i].row;
+	col = stack->data[i].col;
+	//if((row+1==maze->rows)&&(col+1==maze->columns)){
         //printf("solvable\n");
-	break;
-        }
+	//break;
         if(row+1!=maze->rows){
 	    if(maze->map[row+1][col]=='0'&&visited[row+1][col]==0){
-	        enqueue(stack,createCell(row+1,col));
+	        enqueue(stack,createCell(row+1,col),createCell(row,col));
+		visited[row+1][col] = 1;
+		if((row+2==maze->rows)&&(col+1==maze->columns)){
+                    printf("solved");
+		    break;
+		}
 	    }
         }
         if(col+1!=maze->columns){
 	    if(maze->map[row][col+1]=='0'&&visited[row][col+1]==0){
-	        enqueue(stack,createCell(row,col+1));
+	        enqueue(stack,createCell(row,col+1),createCell(row,col));
+		visited[row][col+1] = 1;
+		if((row+1==maze->rows)&&(col+2==maze->columns)){
+		    printf("solved");
+		    break;
+		}
 	    }
         }
         if(row-1!=-1){
 	    if(maze->map[row-1][col]=='0'&&visited[row-1][col]==0){
-	        enqueue(stack,createCell(row-1,col));
+	        enqueue(stack,createCell(row-1,col),createCell(row,col));
+		visited[row-1][col] = 1;
 	    }
         }
         if(col-1!=-1){
 	    if(maze->map[row][col-1]=='0'&&visited[row][col-1]==0){
-	        enqueue(stack,createCell(row,col-1));
+	        enqueue(stack,createCell(row,col-1),createCell(row,col));
+		visited[row][col-1] = 1;
 	    }
         }
 	i++;
     }
+    
 }
 
 //-s command
@@ -296,6 +321,7 @@ int main(int argc, char** argv){
     }
     maze->solvable=0;
     checkSolvable(maze,crumbs,0,0);
+    bestSolution(maze);
     if(maze->solvable==1){
 	printf("solvable\n");
     }
