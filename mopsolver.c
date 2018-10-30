@@ -133,13 +133,21 @@ Cell gettop(Stack *stack){
 }
 
 //this function takes a maze and uses breadth first search to create a stack and check if theres a solution. Then if there is a solution it interpretes the stack to find the number of moves and changes the locations the solution goes through to 3. If the command p was used it reprints the maze and prints +'s where the 3's are. 
-void bestSolution(Maze *maze){
-    int visited[maze->rows][maze->columns];//array to show which locations have been visited
-    for(int i=0; i<maze->rows; i++){//initialises visited array to 0's
-	for(int j=0; j<maze->columns; j++){
-	    visited[i][j]=0;
+void bestSolution(Maze *maze){ 
+    int **visited = malloc(8*maze->rows+1);
+    for(int i=0; i<maze->rows; i++){
+	visited[i]=malloc(maze->columns*4);
+	for(int y=0; y<maze->columns;y++){
+	    visited[i][y]=0;
+	    //printf("%d\n",visited[i][y]);
 	}
     }
+    //int visited[maze->rows][maze->columns];//array to show which locations have been visited
+    //for(int i=0; i<maze->rows; i++){//initialises visited array to 0's
+//	for(int j=0; j<maze->columns; j++){
+//	    visited[i][j]=0;
+//	}
+//    }
     visited[0][0] = 1;//sets initial lcation to 1;
     Stack *stack = createStack();//creates stack
     enqueue(stack,createCell(0,0),createCell(-1,-1));//enques start location with parent (-1,-1)
@@ -212,6 +220,10 @@ void bestSolution(Maze *maze){
     if(maze->p==1){//if p command was used
         printMap(maze);//reprints the map with the values on the solution path set to 3 
     }
+    for(int i = 0;i<maze->rows;i++){//iterates through the map and frees every row
+        free(visited[i]);
+    }
+    free(visited);
     freeStack(stack);//frees the stack
 }
 
