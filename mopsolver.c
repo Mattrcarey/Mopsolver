@@ -186,7 +186,10 @@ void bestSolution(Maze *maze){
         }
 	i++;
     }
-    if(maze->solvable){
+    if(maze->map[0][0]=='1'){
+        maze->solvable=0;
+    }
+    if(maze->solvable==1){
         while(stack->size>0){
             row = getParent(stack).row;
             col = getParent(stack).col;
@@ -202,15 +205,15 @@ void bestSolution(Maze *maze){
         }
 	maze->map[maze->rows-1][maze->columns-1]='3';
     }
-    if(maze->s){
-	if(maze->solvable){
-	    printf("Solution in %d steps\n",maze->moves+1);
+    if(maze->s==1){
+	if(maze->solvable==1){
+	    printf("Solution in %d steps.\n",maze->moves+1);
 	}
 	else{
-	    printf("No Solution\n");
+	    printf("No solution.\n");
 	}
     }
-    if(maze->p){
+    if(maze->p==1){
         printMap(maze);
     }
     freeStack(stack);
@@ -221,7 +224,7 @@ void checkSolvable(Maze *maze,int crumbs[][maze->columns],int row,int col){
     //uses depth first search to check if the maze is solvable.
     crumbs[row][col]=1;
     if((row+1==maze->rows)&&(col+1==maze->columns)){
-        //printf("solvable\n");
+        printf("solvable\n");
 	maze->solvable=1;
     }
     if(row+1!=maze->rows){
@@ -258,7 +261,7 @@ int readline(Maze *maze, size_t size){
     if(!feof(maze->i)){
         maze->map = realloc(maze->map,(maze->rows+1)*8); 
         maze->map[maze->rows]=malloc(maze->columns);
-        for(int i = 0;i<(signed)size;i++){
+        for(int i = 0;i<(signed)strlen(buf);i++){
 	    if(buf[i]==48||buf[i]==49){
 	        maze->map[maze->rows][count]=buf[i];
 	        count++;
@@ -283,7 +286,7 @@ void createMap(Maze *maze){
     int a=0;
     int count = 0;
     getline(&buf,&len,fp);
-    for(int i=0; i<(signed)len; i++){
+    for(int i=0; i<(signed)strlen(buf); i++){
         if(buf[i]==48||buf[i]==49){
 	    count++;
 	}
@@ -291,7 +294,7 @@ void createMap(Maze *maze){
     maze->columns=count;
     maze->map=malloc(8);
     maze->map[0]=malloc(maze->columns);
-    for(int i=0;i<(signed)len; i++){
+    for(int i=0;i<(signed)strlen(buf); i++){
 	if(buf!=NULL){
             if((buf[i]==48)||(buf[i]==49)){
 	        maze->map[0][a]=buf[i];
@@ -324,6 +327,9 @@ void freeMaze(Maze* maze){
 int main(int argc, char** argv){
     Maze *maze = malloc(sizeof(Maze));
     int opt;
+    maze->p=0;
+    maze->d=0;
+    maze->s=0;
     FILE *i=stdin;
     FILE *o=stdout;
     while((opt=getopt(argc, argv, "hdspi:o:"))!=-1){
@@ -353,6 +359,7 @@ int main(int argc, char** argv){
     }
     maze->i=i;
     maze->o=o;
+    maze->moves=0;
     createMap(maze);
     //printf("1\n");
     if(maze->d==1){
@@ -360,15 +367,14 @@ int main(int argc, char** argv){
     }
     //int test;
     //printf("2\n");
-    //int crumbs[maze->rows][maze->columns]; 
-	   // malloc(maze->rows*sizeof(int*));
-    //for(int i=0; i<maze->rows; i++){
+    int crumbs[maze->rows][maze->columns]; 
+	  //malloc(maze->rows*sizeof(int*));
+    for(int i=0; i<maze->rows; i++){
         //crumbs[i]=malloc(maze->columns);
-	//for(int j=0; j<maze->columns; j++){
-	    //crumbs[i][j]=0;
-	//}
-    //}
-    //printf("3\n");
+	for(int j=0; j<maze->columns; j++){
+	    crumbs[i][j]=0;
+	}
+    }
     maze->solvable=0;
     //checkSolvable(maze,crumbs,0,0);
     //printf("4\n");
